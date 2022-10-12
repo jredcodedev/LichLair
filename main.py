@@ -1,8 +1,11 @@
+import copy
 import string
 
-current_room = 'Cave Entrance'
-inventory = []
+current_room = 'Cave Entrance'  # track current room
+inventory = []  # track player inventory
 play_again = True
+
+# all valid commands
 all_commands = ('north', 'south', 'east', 'west',
                 'get phylactery piece(1)',
                 'get phylactery piece(2)',
@@ -11,13 +14,17 @@ all_commands = ('north', 'south', 'east', 'west',
                 'get secret room key',
                 'get storage room key',
                 'exit')
+# only movement commands
 move_commands = ('north', 'south', 'east', 'west')
+# only item commands
 item_commands = ('get phylactery piece(1)',
                  'get phylactery piece(2)',
                  'get phylactery piece(3)',
                  'get phylactery piece(4)',
                  'get secret room key',
                  'get storage room key')
+
+# room connections, items, and lock status
 rooms = {'Cave Entrance': {
     'item': None,
     'locked': False,
@@ -83,21 +90,25 @@ rooms = {'Cave Entrance': {
         'west': 'Foyer'}
 }
 
+default_rooms = copy.deepcopy(rooms)  # copy of rooms for resetting for play again
 
+
+# check if room in direction and if room is locked, return status string or room
 def try_move_player(direction):
     next_room = rooms[current_room][direction]
-    if next_room is not None:
-        if rooms[next_room]['locked']:
-            if string.capwords(next_room) + ' Key' in inventory:
+    if next_room is not None:  # if there is a room in direction
+        if rooms[next_room]['locked']:  # if the room is locked
+            if string.capwords(next_room) + ' Key' in inventory:  # if player has correct key
                 return next_room
             else:
-                return 'locked room'
+                return next_room + ' locked'
         else:
             return next_room
     else:
         return 'no path'
 
 
+# check if item is in room
 def try_get_item(item):
     if rooms[current_room]['item'] != item:
         return 'not here'
@@ -105,18 +116,20 @@ def try_get_item(item):
         return 'item here'
 
 
+# process player command and return appropriate status string
 def process_command(command):
-    if command not in all_commands:
+    if command not in all_commands:  # if command invalid
         return 'Invalid command'
     else:
-        if command in move_commands:
+        if command in move_commands:  # try to move player if command is a move command
             return try_move_player(command)
-        elif command in item_commands:
+        elif command in item_commands:  # try to pick up item if command is item command
             return try_get_item(command.lstrip('get '))
-        elif command == 'exit':
+        elif command == 'exit':  # if exit command, return status string
             return command
 
 
+# print intro and how to play
 def print_intro():
     print('Welcome to the Lich\'s Lair!')
     print('Collect all 4 pieces of the Lich\'s Phylactery to ensure his defeat is final.')
@@ -127,6 +140,7 @@ def print_intro():
     print('To leave the game: exit')
 
 
+# print victory message
 def print_win_message():
     print('After a long fight, you vanquish the Lich.')
     print('As you are celebrating your victory, the Lich begins to rise.')
@@ -134,6 +148,7 @@ def print_win_message():
     print('Congratulations! You win!')
 
 
+# print fail message
 def print_lose_message():
     print('After a long fight, you vanquish the Lich.')
     print('As you are celebrating your victory, the Lich begins to rise.')
@@ -141,61 +156,66 @@ def print_lose_message():
     print('You lose!')
 
 
+# display player ui (current room, item in room, inventory)
 def display_player_info():
-    print('\nYou are in the {}'.format(current_room))
-    print('Inventory :', inventory)
-    if rooms[current_room]['item'] is not None:
+    print('\nYou are in the {}'.format(current_room))  # current room
+    print('Inventory :', inventory)  # player inventory
+    if rooms[current_room]['item'] is not None:  # display item if there is one
         print('You see a', string.capwords(rooms[current_room]['item']))
     print('-' * 30)
-    if current_room != 'Throne Room':
+    if current_room != 'Throne Room':  # don't ask for new move if in final room
         print('Enter your move:')
 
 
 if __name__ == '__main__':
-    while play_again:
-        print_intro()
+    while play_again:  # if play again is true
+        print_intro()  # intro message
 
-        while True:
-            display_player_info()
+        while True:  # main game loop
+            display_player_info()  # show ui
 
-            if current_room == 'Throne Room':
-                if len(inventory) == 6:
+            if current_room == 'Throne Room':  # if player is in boss room
+                if len(inventory) == 6:  # if player has all items
                     print_win_message()
                     break
                 else:
                     print_lose_message()
                     break
 
-            command_results = process_command(input().lower())
+            command_results = process_command(input().lower())  # store status string or new room
 
-            if command_results == 'Invalid command':
+            if command_results == 'Invalid command':  # if player command is invalid
                 print('Invalid command')
-            elif command_results == 'no path':
+            elif command_results == 'no path':  # if there is no room in direction
                 print('There is no path in that direction.')
-            elif command_results == 'not here':
+            elif command_results == 'not here':  # if the item is not in the room
                 print('That item is not here.')
-            elif command_results == 'item here':
-                inventory.append(string.capwords(rooms[current_room]['item']))
-                print('{} added to inventory'.format(string.capwords(rooms[current_room]['item'])))
-                rooms[current_room]['item'] = None
-            elif command_results == 'locked room':
-                print('That room is locked, find the key.')
-            elif command_results == 'exit':
+            elif command_results == 'item here':  # if the item is in the room
+                inventory.append(string.capwords(rooms[current_room]['item']))  # add item to inventory
+                print('{} added to inventory'.format(string.capwords(rooms[current_room]['item'])))  # inform player
+                rooms[current_room]['item'] = None  # remove item from room
+            elif command_results == 'Storage Room locked':  # if next room is locked storage room
+                print('The storage room is locked, find the key.')
+            elif command_results == 'Secret Room locked':  # if next room is locked secret room
+                print('The secret room is locked, find the key.')
+            elif command_results == 'exit':  # if exit command is given
                 play_again = False
                 break
-            else:
+            else:  # if no status string, update current room
                 current_room = command_results
 
         print('Thank you for playing!')
 
-        while play_again:
+        while play_again:  # while player wants to play again
             print('\nPlay again? (y/n)')
             user_choice = input()
-            if user_choice == 'y':
+            if user_choice == 'y':  # if yes, reset rooms, current room, and inventory and continue
                 current_room = 'Cave Entrance'
+                rooms = copy.deepcopy(default_rooms)
+                inventory.clear()
                 break
-            elif user_choice == 'n':
+            elif user_choice == 'n':  # if no, exit game
                 play_again = False
                 break
-            else:
+            else:  # if input was not 'y' or 'n'
                 print('Invalid input')
