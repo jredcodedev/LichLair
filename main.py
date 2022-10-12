@@ -1,3 +1,5 @@
+# Jerry Red
+
 import copy
 import string
 
@@ -208,7 +210,7 @@ def main():
 
         print('Thank you for playing!')
 
-        while play_again:  # while player wants to play again
+        while play_again:  # check play again so this loop doesn't execute if player exits early
             print('\nPlay again? (y/n)')
             user_choice = input()
             if user_choice == 'y':  # if yes, reset rooms, current room, and inventory and continue
