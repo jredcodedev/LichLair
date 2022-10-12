@@ -1,100 +1,9 @@
 import copy
 import string
 
-current_room = 'Cave Entrance'  # track current room
-inventory = []  # track player inventory
-play_again = True
-
-# all valid commands
-all_commands = ('north', 'south', 'east', 'west',
-                'get phylactery piece(1)',
-                'get phylactery piece(2)',
-                'get phylactery piece(3)',
-                'get phylactery piece(4)',
-                'get secret room key',
-                'get storage room key',
-                'exit')
-# only movement commands
-move_commands = ('north', 'south', 'east', 'west')
-# only item commands
-item_commands = ('get phylactery piece(1)',
-                 'get phylactery piece(2)',
-                 'get phylactery piece(3)',
-                 'get phylactery piece(4)',
-                 'get secret room key',
-                 'get storage room key')
-
-# room connections, items, and lock status
-rooms = {'Cave Entrance': {
-    'item': None,
-    'locked': False,
-    'north': 'Dungeon',
-    'south': 'Foyer',
-    'east': 'Laboratory',
-    'west': 'Interrogation Room'
-},
-    'Interrogation Room': {
-        'item': 'phylactery piece(1)',
-        'locked': False,
-        'north': None,
-        'south': None,
-        'east': 'Cave Entrance',
-        'west': None
-    },
-    'Dungeon': {
-        'item': 'phylactery piece(2)',
-        'locked': False,
-        'north': None,
-        'south': 'Cave Entrance',
-        'east': 'Secret Room',
-        'west': None
-    },
-    'Storage Room': {
-        'item': 'phylactery piece(3)',
-        'locked': True,
-        'north': None,
-        'south': 'Laboratory',
-        'east': None,
-        'west': None
-    },
-    'Secret Room': {
-        'item': 'phylactery piece(4)',
-        'locked': True,
-        'north': None,
-        'south': None,
-        'east': None,
-        'west': 'Dungeon'
-    },
-    'Laboratory': {
-        'item': 'secret room key',
-        'locked': False,
-        'north': 'Storage Room',
-        'south': None,
-        'east': None,
-        'west': 'Cave Entrance'
-    },
-    'Foyer': {
-        'item': 'storage room key',
-        'locked': False,
-        'north': 'Cave Entrance',
-        'south': None,
-        'east': 'Throne Room',
-        'west': None
-    },
-    'Throne Room': {
-        'item': 'Lich',
-        'locked': False,
-        'north': None,
-        'south': None,
-        'east': None,
-        'west': 'Foyer'}
-}
-
-default_rooms = copy.deepcopy(rooms)  # copy of rooms for resetting for play again
-
 
 # check if room in direction and if room is locked, return status string or room
-def try_move_player(direction):
+def try_move_player(direction, rooms, current_room, inventory):
     next_room = rooms[current_room][direction]
     if next_room is not None:  # if there is a room in direction
         if rooms[next_room]['locked']:  # if the room is locked
@@ -109,7 +18,7 @@ def try_move_player(direction):
 
 
 # check if item is in room
-def try_get_item(item):
+def try_get_item(item, rooms, current_room):
     if rooms[current_room]['item'] != item:
         return 'not here'
     else:
@@ -117,47 +26,42 @@ def try_get_item(item):
 
 
 # process player command and return appropriate status string
-def process_command(command):
+def process_command(command, all_commands, move_commands, item_commands, rooms, current_room, inventory):
     if command not in all_commands:  # if command invalid
         return 'Invalid command'
     else:
         if command in move_commands:  # try to move player if command is a move command
-            return try_move_player(command)
+            return try_move_player(command, rooms, current_room, inventory)
         elif command in item_commands:  # try to pick up item if command is item command
-            return try_get_item(command.lstrip('get '))
+            return try_get_item(command.lstrip('get '), rooms, current_room)
         elif command == 'exit':  # if exit command, return status string
             return command
 
 
-# print intro and how to play
-def print_intro():
-    print('Welcome to the Lich\'s Lair!')
-    print('Collect all 4 pieces of the Lich\'s Phylactery to ensure his defeat is final.')
-    print('-' * 30)
-    print('How to play:')
-    print('To move, enter a direction: North, South, East, West')
-    print('To pick up an item: get \'item name\'')
-    print('To leave the game: exit')
-
-
-# print victory message
-def print_win_message():
-    print('After a long fight, you vanquish the Lich.')
-    print('As you are celebrating your victory, the Lich begins to rise.')
-    print('You quickly smash the Phylactery Pieces and the Lich grows still.')
-    print('Congratulations! You win!')
-
-
-# print fail message
-def print_lose_message():
-    print('After a long fight, you vanquish the Lich.')
-    print('As you are celebrating your victory, the Lich begins to rise.')
-    print('You ready yourself fight again but are too exhausted to continue.')
-    print('You lose!')
+# print message depending on type: 'intro', 'win', or 'lose'
+def print_message(message_type):
+    if message_type == 'intro':
+        print('Welcome to the Lich\'s Lair!')
+        print('Collect all 4 pieces of the Lich\'s Phylactery to ensure his defeat is final.')
+        print('-' * 30)
+        print('How to play:')
+        print('To move, enter a direction: North, South, East, West')
+        print('To pick up an item: get \'item name\'')
+        print('To leave the game: exit')
+    elif message_type == 'win':
+        print('After a long fight, you vanquish the Lich.')
+        print('As you are celebrating your victory, the Lich begins to rise.')
+        print('You quickly smash the Phylactery Pieces and the Lich grows still.')
+        print('Congratulations! You win!')
+    elif message_type == 'lose':
+        print('After a long fight, you vanquish the Lich.')
+        print('As you are celebrating your victory, the Lich begins to rise.')
+        print('You ready yourself fight again but are too exhausted to continue.')
+        print('You lose!')
 
 
 # display player ui (current room, item in room, inventory)
-def display_player_info():
+def display_player_info(rooms, current_room, inventory):
     print('\nYou are in the {}'.format(current_room))  # current room
     print('Inventory :', inventory)  # player inventory
     if rooms[current_room]['item'] is not None:  # display item if there is one
@@ -167,22 +71,120 @@ def display_player_info():
         print('Enter your move:')
 
 
-if __name__ == '__main__':
+def main():
+    current_room = 'Cave Entrance'  # track current room
+    inventory = []  # track player inventory
+    play_again = True
+
+    # all valid commands
+    all_commands = ('north', 'south', 'east', 'west',
+                    'get phylactery piece(1)',
+                    'get phylactery piece(2)',
+                    'get phylactery piece(3)',
+                    'get phylactery piece(4)',
+                    'get secret room key',
+                    'get storage room key',
+                    'exit')
+    # only movement commands
+    move_commands = ('north', 'south', 'east', 'west')
+    # only item commands
+    item_commands = ('get phylactery piece(1)',
+                     'get phylactery piece(2)',
+                     'get phylactery piece(3)',
+                     'get phylactery piece(4)',
+                     'get secret room key',
+                     'get storage room key')
+
+    # room connections, items, and lock status
+    rooms = {'Cave Entrance': {
+        'item': None,
+        'locked': False,
+        'north': 'Dungeon',
+        'south': 'Foyer',
+        'east': 'Laboratory',
+        'west': 'Interrogation Room'
+        },
+        'Interrogation Room': {
+            'item': 'phylactery piece(1)',
+            'locked': False,
+            'north': None,
+            'south': None,
+            'east': 'Cave Entrance',
+            'west': None
+        },
+        'Dungeon': {
+            'item': 'phylactery piece(2)',
+            'locked': False,
+            'north': None,
+            'south': 'Cave Entrance',
+            'east': 'Secret Room',
+            'west': None
+        },
+        'Storage Room': {
+            'item': 'phylactery piece(3)',
+            'locked': True,
+            'north': None,
+            'south': 'Laboratory',
+            'east': None,
+            'west': None
+        },
+        'Secret Room': {
+            'item': 'phylactery piece(4)',
+            'locked': True,
+            'north': None,
+            'south': None,
+            'east': None,
+            'west': 'Dungeon'
+        },
+        'Laboratory': {
+            'item': 'secret room key',
+            'locked': False,
+            'north': 'Storage Room',
+            'south': None,
+            'east': None,
+            'west': 'Cave Entrance'
+        },
+        'Foyer': {
+            'item': 'storage room key',
+            'locked': False,
+            'north': 'Cave Entrance',
+            'south': None,
+            'east': 'Throne Room',
+            'west': None
+        },
+        'Throne Room': {
+            'item': 'Lich',
+            'locked': False,
+            'north': None,
+            'south': None,
+            'east': None,
+            'west': 'Foyer'}
+    }
+
+    default_rooms = copy.deepcopy(rooms)  # copy of rooms for resetting for play again
+
     while play_again:  # if play again is true
-        print_intro()  # intro message
+        print_message('intro')  # intro message
 
         while True:  # main game loop
-            display_player_info()  # show ui
+            display_player_info(rooms, current_room, inventory)  # show ui
 
             if current_room == 'Throne Room':  # if player is in boss room
                 if len(inventory) == 6:  # if player has all items
-                    print_win_message()
+                    print_message('win')
                     break
                 else:
-                    print_lose_message()
+                    print_message('lose')
                     break
 
-            command_results = process_command(input().lower())  # store status string or new room
+            # store status string or new room
+            command_results = process_command(input().lower(),
+                                              all_commands,
+                                              move_commands,
+                                              item_commands,
+                                              rooms,
+                                              current_room,
+                                              inventory)
 
             if command_results == 'Invalid command':  # if player command is invalid
                 print('Invalid command')
@@ -219,3 +221,7 @@ if __name__ == '__main__':
                 break
             else:  # if input was not 'y' or 'n'
                 print('Invalid input')
+
+
+if __name__ == '__main__':
+    main()
