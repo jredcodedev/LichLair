@@ -1,84 +1,86 @@
+import string
+
 current_room = 'Cave Entrance'
 inventory = []
 play_again = True
-all_commands = ('North', 'South', 'East', 'West',
-                'get Phylactery Piece(1)',
-                'get Phylactery Piece(2)',
-                'get Phylactery Piece(3)',
-                'get Phylactery Piece(4)',
-                'get Secret Room Key',
-                'get Storage Room Key',
-                'Exit')
-move_commands = ('North', 'South', 'East', 'West')
-item_commands = ('get Phylactery Piece(1)',
-                 'get Phylactery Piece(2)',
-                 'get Phylactery Piece(3)',
-                 'get Phylactery Piece(4)',
-                 'get Secret Room Key',
-                 'get Storage Room Key')
+all_commands = ('north', 'south', 'east', 'west',
+                'get phylactery piece(1)',
+                'get phylactery piece(2)',
+                'get phylactery piece(3)',
+                'get phylactery piece(4)',
+                'get secret room key',
+                'get storage room key',
+                'exit')
+move_commands = ('north', 'south', 'east', 'west')
+item_commands = ('get phylactery piece(1)',
+                 'get phylactery piece(2)',
+                 'get phylactery piece(3)',
+                 'get phylactery piece(4)',
+                 'get secret room key',
+                 'get storage room key')
 rooms = {'Cave Entrance': {
     'item': None,
     'locked': False,
-    'North': 'Dungeon',
-    'South': 'Foyer',
-    'East': 'Laboratory',
-    'West': 'Interrogation Room'
+    'north': 'Dungeon',
+    'south': 'Foyer',
+    'east': 'Laboratory',
+    'west': 'Interrogation Room'
 },
     'Interrogation Room': {
-        'item': 'Phylactery Piece(1)',
+        'item': 'phylactery piece(1)',
         'locked': False,
-        'North': None,
-        'South': None,
-        'East': 'Cave Entrance',
-        'West': None
+        'north': None,
+        'south': None,
+        'east': 'Cave Entrance',
+        'west': None
     },
     'Dungeon': {
-        'item': 'Phylactery Piece(2)',
+        'item': 'phylactery piece(2)',
         'locked': False,
-        'North': None,
-        'South': 'Cave Entrance',
-        'East': 'Secret Room',
-        'West': None
+        'north': None,
+        'south': 'Cave Entrance',
+        'east': 'Secret Room',
+        'west': None
     },
     'Storage Room': {
-        'item': 'Phylactery Piece(3)',
+        'item': 'phylactery piece(3)',
         'locked': True,
-        'North': None,
-        'South': 'Laboratory',
-        'East': None,
-        'West': None
+        'north': None,
+        'south': 'Laboratory',
+        'east': None,
+        'west': None
     },
     'Secret Room': {
-        'item': 'Phylactery Piece(4)',
+        'item': 'phylactery piece(4)',
         'locked': True,
-        'North': None,
-        'South': None,
-        'East': None,
-        'West': 'Dungeon'
+        'north': None,
+        'south': None,
+        'east': None,
+        'west': 'Dungeon'
     },
     'Laboratory': {
-        'item': 'Secret Room Key',
+        'item': 'secret room key',
         'locked': False,
-        'North': 'Storage Room',
-        'South': None,
-        'East': None,
-        'West': 'Cave Entrance'
+        'north': 'Storage Room',
+        'south': None,
+        'east': None,
+        'west': 'Cave Entrance'
     },
     'Foyer': {
-        'item': 'Storage Room Key',
+        'item': 'storage room key',
         'locked': False,
-        'North': 'Cave Entrance',
-        'South': None,
-        'East': 'Throne Room',
-        'West': None
+        'north': 'Cave Entrance',
+        'south': None,
+        'east': 'Throne Room',
+        'west': None
     },
     'Throne Room': {
         'item': 'Lich',
         'locked': False,
-        'North': None,
-        'South': None,
-        'East': None,
-        'West': 'Foyer'}
+        'north': None,
+        'south': None,
+        'east': None,
+        'west': 'Foyer'}
 }
 
 
@@ -86,7 +88,7 @@ def try_move_player(direction):
     next_room = rooms[current_room][direction]
     if next_room is not None:
         if rooms[next_room]['locked']:
-            if next_room + ' Key' in inventory:
+            if string.capwords(next_room) + ' Key' in inventory:
                 return next_room
             else:
                 return 'locked room'
@@ -111,7 +113,7 @@ def process_command(command):
             return try_move_player(command)
         elif command in item_commands:
             return try_get_item(command.lstrip('get '))
-        elif command == 'Exit':
+        elif command == 'exit':
             return command
 
 
@@ -122,7 +124,7 @@ def print_intro():
     print('How to play:')
     print('To move, enter a direction: North, South, East, West')
     print('To pick up an item: get \'item name\'')
-    print('To leave the game: Exit')
+    print('To leave the game: exit')
 
 
 def print_win_message():
@@ -143,7 +145,7 @@ def display_player_info():
     print('\nYou are in the {}'.format(current_room))
     print('Inventory :', inventory)
     if rooms[current_room]['item'] is not None:
-        print('You see a', rooms[current_room]['item'])
+        print('You see a', string.capwords(rooms[current_room]['item']))
     print('-' * 30)
     if current_room != 'Throne Room':
         print('Enter your move:')
@@ -164,7 +166,7 @@ if __name__ == '__main__':
                     print_lose_message()
                     break
 
-            command_results = process_command(input())
+            command_results = process_command(input().lower())
 
             if command_results == 'Invalid command':
                 print('Invalid command')
@@ -173,12 +175,12 @@ if __name__ == '__main__':
             elif command_results == 'not here':
                 print('That item is not here.')
             elif command_results == 'item here':
-                inventory.append(rooms[current_room]['item'])
-                print('{} added to inventory'.format(rooms[current_room]['item']))
+                inventory.append(string.capwords(rooms[current_room]['item']))
+                print('{} added to inventory'.format(string.capwords(rooms[current_room]['item'])))
                 rooms[current_room]['item'] = None
             elif command_results == 'locked room':
                 print('That room is locked, find the key.')
-            elif command_results == 'Exit':
+            elif command_results == 'exit':
                 play_again = False
                 break
             else:
