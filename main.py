@@ -7,93 +7,91 @@ commands = ('North', 'South', 'East', 'West',
             'get Phylactery Piece(3)',
             'get Phylactery Piece(4)',
             'get Secret Room Key',
-            'get Storage Room Key')
-rooms = {'Cave Entrance':
-             {'item': None,
+            'get Storage Room Key',
+            'Exit')
+move_commands = ('North', 'South', 'East', 'West')
+item_commands = ('get Phylactery Piece(1)',
+                 'get Phylactery Piece(2)',
+                 'get Phylactery Piece(3)',
+                 'get Phylactery Piece(4)',
+                 'get Secret Room Key',
+                 'get Storage Room Key')
+rooms = {'Cave Entrance': {
+              'item': None,
               'locked': False,
-              'north': 'Dungeon',
-              'south': 'Foyer',
-              'east': 'Laboratory',
-              'west': 'Interrogation Room'
+              'North': 'Dungeon',
+              'South': 'Foyer',
+              'East': 'Laboratory',
+              'West': 'Interrogation Room'
               },
-         'Interrogation Room':
-             {'item': 'Phylactery Piece(1)',
+         'Interrogation Room': {
+              'item': 'Phylactery Piece(1)',
               'locked': False,
-              'north': None,
-              'south': None,
-              'east': 'Cave Entrance',
-              'west': None
+              'North': None,
+              'South': None,
+              'East': 'Cave Entrance',
+              'West': None
               },
-         'Dungeon':
-             {'item': 'Phylactery Piece(2)',
+         'Dungeon': {
+              'item': 'Phylactery Piece(2)',
               'locked': False,
-              'north': None,
-              'south': 'Cave Entrance',
-              'east': 'Secret Room',
-              'west': None
+              'North': None,
+              'South': 'Cave Entrance',
+              'East': 'Secret Room',
+              'West': None
               },
-         'Storage Room':
-             {'item': 'Phylactery Piece(3)',
+         'Storage Room': {
+              'item': 'Phylactery Piece(3)',
               'locked': True,
-              'north': None,
-              'south': 'Laboratory',
-              'east': None,
-              'west': None
+              'North': None,
+              'South': 'Laboratory',
+              'East': None,
+              'West': None
               },
-         'Secret Room':
-             {'item': 'Phylactery Piece(4)',
+         'Secret Room': {
+              'item': 'Phylactery Piece(4)',
               'locked': True,
-              'north': None,
-              'south': None,
-              'east': None,
-              'west': 'Dungeon'
+              'North': None,
+              'South': None,
+              'East': None,
+              'West': 'Dungeon'
               },
-         'Laboratory':
-             {'item': 'Secret Room Key',
+         'Laboratory': {
+              'item': 'Secret Room Key',
               'locked': False,
-              'north': 'Storage Room',
-              'south': None,
-              'east': None,
-              'west': 'Cave Entrance'
+              'North': 'Storage Room',
+              'South': None,
+              'East': None,
+              'West': 'Cave Entrance'
               },
-         'Foyer':
-             {'item': 'Storage Room Key',
+         'Foyer': {
+              'item': 'Storage Room Key',
               'locked': False,
-              'north': 'Cave Entrance',
-              'south': None,
-              'east': 'Throne Room',
-              'west': None
+              'North': 'Cave Entrance',
+              'South': None,
+              'East': 'Throne Room',
+              'West': None
               },
-         'Throne Room':
-             {'item': 'Lich',
+         'Throne Room': {
+              'item': 'Lich',
               'locked': False,
-              'north': None,
-              'south': None,
-              'east': None,
-              'west': 'Foyer'}
+              'North': None,
+              'South': None,
+              'East': None,
+              'West': 'Foyer'}
          }
 
 
-def display_info():
-    print('\nYou are in the {}'.format(current_room))
-    print('Inventory :', inventory)
-    if rooms[current_room]['item'] is not None:
-        print('You see a', rooms[current_room]['item'])
-    print('-' * 30)
-    if current_room != 'Throne Room':
-        print('Enter your move:')
-
-
-def move_player(direction):
-    if rooms[current_room][direction] is not None:
-        next_room = rooms[current_room][direction]
+def try_move_player(direction):
+    next_room = rooms[current_room][direction]
+    if next_room is not None:
         if rooms[next_room]['locked']:
-            if rooms[current_room][direction] + ' Key' in inventory:
-                return rooms[current_room][direction]
+            if next_room + ' Key' in inventory:
+                return next_room
             else:
                 return 'locked room'
         else:
-            return rooms[current_room][direction]
+            return next_room
     else:
         return 'no path'
 
@@ -109,51 +107,65 @@ def process_command(command):
     if command not in commands:
         return 'Invalid command'
     else:
-        if command == 'North':
-            return move_player('north')
-        elif command == 'South':
-            return move_player('south')
-        elif command == 'East':
-            return move_player('east')
-        elif command == 'West':
-            return move_player('west')
-        elif command == 'get Phylactery Piece(1)':
-            return try_get_item('Phylactery Piece(1)')
-        elif command == 'get Phylactery Piece(2)':
-            return try_get_item('Phylactery Piece(2)')
-        elif command == 'get Phylactery Piece(3)':
-            return try_get_item('Phylactery Piece(3)')
-        elif command == 'get Phylactery Piece(4)':
-            return try_get_item('Phylactery Piece(4)')
-        elif command == 'get Storage Room Key':
-            return try_get_item('Storage Room Key')
-        elif command == 'get Secret Room Key':
-            return try_get_item('Secret Room Key')
+        if command in move_commands:
+            return try_move_player(command)
+        elif command in item_commands:
+            return try_get_item(command.lstrip('get '))
+        elif command == 'Exit':
+            return command
+
+
+def print_intro():
+    print('Welcome to the Lich\'s Lair!')
+    print('Collect all 4 pieces of the Lich\'s Phylactery to ensure his defeat is final.')
+    print('-' * 30)
+    print('How to play:')
+    print('To move, enter a direction: North, South, East, West')
+    print('To pick up an item: get \'item name\'')
+    print('To leave the game: Exit')
+
+
+def print_win_message():
+    print('After a long fight, you vanquish the Lich.')
+    print('As you are celebrating your victory, the Lich begins to rise.')
+    print('You quickly smash the Phylactery Pieces and the Lich grows still.')
+    print('Congratulations! You win!')
+
+
+def print_lose_message():
+    print('After a long fight, you vanquish the Lich.')
+    print('As you are celebrating your victory, the Lich begins to rise.')
+    print('You ready yourself fight again but are too exhausted to continue.')
+    print('You lose!')
+
+
+def display_player_info():
+    print('\nYou are in the {}'.format(current_room))
+    print('Inventory :', inventory)
+    if rooms[current_room]['item'] is not None:
+        print('You see a', rooms[current_room]['item'])
+    print('-' * 30)
+    if current_room != 'Throne Room':
+        print('Enter your move:')
 
 
 if __name__ == '__main__':
     while play_again:
-        print('Welcome to the Lich\'s Lair!')
-        print('Collect all 4 pieces of the Lich\'s Phylactery to ensure his defeat is final.')
-        print('Move commands: North, South, East, West')
-        print('Pick up item: get \'item name\'')
+        print_intro()
 
         while True:
-            display_info()
+            display_player_info()
+
             if current_room == 'Throne Room':
                 if len(inventory) == 6:
-                    print('After a long fight, you vanquish the Lich.')
-                    print('As you are celebrating your victory, the Lich begins to rise.')
-                    print('You quickly smash the Phylactery Pieces and the Lich grows still.')
-                    print('Congratulations! You win!')
+                    print_win_message()
                     break
                 else:
-                    print('After a long fight, you vanquish the Lich.')
-                    print('As you are celebrating your victory, the Lich begins to rise.')
-                    print('You ready yourself fight again but are too exhausted to continue.')
-                    print('You lose!')
+                    print_lose_message()
                     break
+
             command_results = process_command(input())
+
             if command_results == 'Invalid command':
                 print('Invalid command')
             elif command_results == 'no path':
@@ -166,16 +178,18 @@ if __name__ == '__main__':
                 rooms[current_room]['item'] = None
             elif command_results == 'locked room':
                 print('That room is locked, find the key.')
+            elif command_results == 'Exit':
+                play_again = False
+                break
             else:
                 current_room = command_results
 
         print('Thank you for playing!')
 
-        while True:
+        while play_again:
             print('\nPlay again? (y/n)')
             user_choice = input()
             if user_choice == 'y':
-                play_again = True
                 current_room = 'Cave Entrance'
                 break
             elif user_choice == 'n':
