@@ -1,14 +1,14 @@
 current_room = 'Cave Entrance'
 inventory = []
 play_again = True
-commands = ('North', 'South', 'East', 'West',
-            'get Phylactery Piece(1)',
-            'get Phylactery Piece(2)',
-            'get Phylactery Piece(3)',
-            'get Phylactery Piece(4)',
-            'get Secret Room Key',
-            'get Storage Room Key',
-            'Exit')
+all_commands = ('North', 'South', 'East', 'West',
+                'get Phylactery Piece(1)',
+                'get Phylactery Piece(2)',
+                'get Phylactery Piece(3)',
+                'get Phylactery Piece(4)',
+                'get Secret Room Key',
+                'get Storage Room Key',
+                'Exit')
 move_commands = ('North', 'South', 'East', 'West')
 item_commands = ('get Phylactery Piece(1)',
                  'get Phylactery Piece(2)',
@@ -17,69 +17,69 @@ item_commands = ('get Phylactery Piece(1)',
                  'get Secret Room Key',
                  'get Storage Room Key')
 rooms = {'Cave Entrance': {
-              'item': None,
-              'locked': False,
-              'North': 'Dungeon',
-              'South': 'Foyer',
-              'East': 'Laboratory',
-              'West': 'Interrogation Room'
-              },
-         'Interrogation Room': {
-              'item': 'Phylactery Piece(1)',
-              'locked': False,
-              'North': None,
-              'South': None,
-              'East': 'Cave Entrance',
-              'West': None
-              },
-         'Dungeon': {
-              'item': 'Phylactery Piece(2)',
-              'locked': False,
-              'North': None,
-              'South': 'Cave Entrance',
-              'East': 'Secret Room',
-              'West': None
-              },
-         'Storage Room': {
-              'item': 'Phylactery Piece(3)',
-              'locked': True,
-              'North': None,
-              'South': 'Laboratory',
-              'East': None,
-              'West': None
-              },
-         'Secret Room': {
-              'item': 'Phylactery Piece(4)',
-              'locked': True,
-              'North': None,
-              'South': None,
-              'East': None,
-              'West': 'Dungeon'
-              },
-         'Laboratory': {
-              'item': 'Secret Room Key',
-              'locked': False,
-              'North': 'Storage Room',
-              'South': None,
-              'East': None,
-              'West': 'Cave Entrance'
-              },
-         'Foyer': {
-              'item': 'Storage Room Key',
-              'locked': False,
-              'North': 'Cave Entrance',
-              'South': None,
-              'East': 'Throne Room',
-              'West': None
-              },
-         'Throne Room': {
-              'item': 'Lich',
-              'locked': False,
-              'North': None,
-              'South': None,
-              'East': None,
-              'West': 'Foyer'}
-         }
+    'item': None,
+    'locked': False,
+    'North': 'Dungeon',
+    'South': 'Foyer',
+    'East': 'Laboratory',
+    'West': 'Interrogation Room'
+},
+    'Interrogation Room': {
+        'item': 'Phylactery Piece(1)',
+        'locked': False,
+        'North': None,
+        'South': None,
+        'East': 'Cave Entrance',
+        'West': None
+    },
+    'Dungeon': {
+        'item': 'Phylactery Piece(2)',
+        'locked': False,
+        'North': None,
+        'South': 'Cave Entrance',
+        'East': 'Secret Room',
+        'West': None
+    },
+    'Storage Room': {
+        'item': 'Phylactery Piece(3)',
+        'locked': True,
+        'North': None,
+        'South': 'Laboratory',
+        'East': None,
+        'West': None
+    },
+    'Secret Room': {
+        'item': 'Phylactery Piece(4)',
+        'locked': True,
+        'North': None,
+        'South': None,
+        'East': None,
+        'West': 'Dungeon'
+    },
+    'Laboratory': {
+        'item': 'Secret Room Key',
+        'locked': False,
+        'North': 'Storage Room',
+        'South': None,
+        'East': None,
+        'West': 'Cave Entrance'
+    },
+    'Foyer': {
+        'item': 'Storage Room Key',
+        'locked': False,
+        'North': 'Cave Entrance',
+        'South': None,
+        'East': 'Throne Room',
+        'West': None
+    },
+    'Throne Room': {
+        'item': 'Lich',
+        'locked': False,
+        'North': None,
+        'South': None,
+        'East': None,
+        'West': 'Foyer'}
+}
 
 
 def try_move_player(direction):
@@ -104,7 +104,7 @@ def try_get_item(item):
 
 
 def process_command(command):
-    if command not in commands:
+    if command not in all_commands:
         return 'Invalid command'
     else:
         if command in move_commands:
